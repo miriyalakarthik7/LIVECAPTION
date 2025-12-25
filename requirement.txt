@@ -1,0 +1,7 @@
+streamlit>=1.32.0
+openai-whisper
+torch>=2.2.0
+sounddevice>=0.4.6
+numpy>=1.26.0
+scipy>=1.11.4
+nltk>=3.8.1
