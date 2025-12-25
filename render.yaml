@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: livecaption-web
+    env: python
+    repo: https://github.com/Srikanth-15L/LIVECAPTION
+    branch: main
+    buildCommand: pip install --no-cache-dir -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT main:app
+    plan: free
+    envVars:
+      - key: PORT
+        value: "10000"
+    healthCheckPath: /health
+    autoDeploy: true
+
+# Notes:
+# - Adjust `startCommand` to match your application's entry point (e.g. "uvicorn app.main:app --host 0.0.0.0 --port $PORT" for FastAPI).
+# - Replace `main:app` with the Python module and WSGI/ASGI app object used by your project.
+# - Remove the explicit PORT env var if your app reads Render's $PORT variable directly.
+# - If you use Docker, set `env: docker` and remove Python-specific commands.
