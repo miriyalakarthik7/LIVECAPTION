@@ -1,7 +1,7 @@
-FROM python:3.9-slim
+FROM python:3.10-slim
 
-# Install system dependencies (ffmpeg is required for Whisper)
-RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
+# Install system dependencies (ffmpeg is required for Whisper, libportaudio2 for sounddevice)
+RUN apt-get update && apt-get install -y ffmpeg libportaudio2 && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
