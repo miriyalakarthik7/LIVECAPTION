@@ -17,7 +17,13 @@ app.add_middleware(
 
 # Load Whisper model
 # "base" is a good balance for speed/accuracy. Use "tiny" for faster (less accurate) results.
-model = whisper.load_model("base")
+print("Loading Whisper model... (This may take a moment)")
+try:
+    model = whisper.load_model("tiny")
+    print("Whisper model loaded successfully! Ready for connections.")
+except Exception as e:
+    print(f"Error loading model: {e}")
+    raise e
 
 @app.websocket("/ws/transcribe")
 async def websocket_endpoint(websocket: WebSocket):

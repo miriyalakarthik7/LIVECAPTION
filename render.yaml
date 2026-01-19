@@ -1,20 +1,41 @@
 services:
+  # Backend Service (Docker)
   - type: web
-    name: livecaption-web
-    env: python
-    repo: https://github.com/Srikanth-15L/LIVECAPTION
-    branch: main
-    buildCommand: pip install --no-cache-dir -r requirements.txt
-    startCommand: gunicorn --bind 0.0.0.0:$PORT main:app
+    name: livecaption-backend
+    env: docker
     plan: free
+    region: oregon
     envVars:
       - key: PORT
-        value: "10000"
-    healthCheckPath: /health
+        value: "8000"
+    healthCheckPath: /docs
     autoDeploy: true
 
-# Notes:
-# - Adjust `startCommand` to match your application's entry point (e.g. "uvicorn app.main:app --host 0.0.0.0 --port $PORT" for FastAPI).
-# - Replace `main:app` with the Python module and WSGI/ASGI app object used by your project.
-# - Remove the explicit PORT env var if your app reads Render's $PORT variable directly.
-# - If you use Docker, set `env: docker` and remove Python-specific commands.
+  # Frontend Service (Static Site)
+  - type: static
+    name: livecaption-frontend
+    env: static
+    buildCommand: npm install && npm run build
+    publishDir: dist
+    root: Frontend/CaptionDisplay
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_WEBSOCKET_URL
+        fromService:
+          type: web
+          name: livecaption-backend
+          property: host
+          # Note: Websockets need ws:// or wss://. Render service host usually returns just the domain.
+          # We might need to manually set this in the Render Dashboard if direct linking doesn't prepend wss://
+          # For now, we will assume user will set this or we format it.
+          # Since Render variables are simple strings, we might need to rely on the user adding it in the dashboard 
+          # OR use a placeholder value that the user updates.
+          # Better: Let's assume the user will configure the Environment Variable manually in Render Dashboard 
+          # because constructing "wss://..." dynamically here is tricky without knowing the full https domain scheme confidently.
+          # BUT, we can try to link it.
+      - key: VITE_WEBSOCKET_URL
+        value: wss://livecaption-backend.onrender.com/ws/transcribe
+        # User should update 'livecaption-backend' with their actua service name if different

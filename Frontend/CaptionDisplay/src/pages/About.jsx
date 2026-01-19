@@ -1,11 +1,12 @@
 import { Eye, Heart, Users, Target } from 'lucide-react';
 import AnimatedPage from '../components/AnimatedPage';
 import srikanthImg from '../assets/srikanth.png';
+import karthikImg from '../assets/karthik.jpg';
 
 const teamMembers = [
     { name: 'Srikanth', role: 'Frontend Developer', id: 1, image: srikanthImg },
     { name: 'Mahindra', role: 'Backend Developer', id: 2 },
-    { name: 'Karthik', role: 'AI Specialist', id: 3 },
+    { name: 'Karthik', role: 'AI Specialist', id: 3, image: karthikImg },
     { name: 'Prasanna', role: 'Database Engineer', id: 4 },
 ];
 

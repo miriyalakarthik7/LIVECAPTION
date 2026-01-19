@@ -4,6 +4,8 @@ import Button from '../components/Button';
 import AnimatedPage from '../components/AnimatedPage';
 import { motion } from 'framer-motion';
 
+
+
 const Home = () => {
     return (
         <AnimatedPage className="bg-white">
@@ -16,22 +18,48 @@ const Home = () => {
                     <div className="lg:grid lg:grid-cols-12 lg:gap-8">
                         <div className="sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left">
                             <motion.div
-                                initial={{ opacity: 0, y: 30 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.8 }}
+                                initial="hidden"
+                                animate="visible"
+                                variants={{
+                                    hidden: { opacity: 1 },
+                                    visible: {
+                                        opacity: 1,
+                                        transition: {
+                                            delay: 0.5,
+                                            staggerChildren: 0.05,
+                                        },
+                                    },
+                                }}
                             >
                                 <h1>
                                     <span className="block text-sm font-semibold uppercase tracking-wide text-brand-400 sm:text-base lg:text-sm xl:text-base">
                                         <Sparkles className="inline-block w-4 h-4 mr-1 mb-1" /> New Generation Accessibility
                                     </span>
                                     <span className="mt-1 block text-4xl tracking-tight font-extrabold sm:text-5xl xl:text-6xl text-white">
-                                        <span className="block">Accessibility that</span>
-                                        <span className="block text-brand-400">speaks to everyone</span>
+                                        <span className="block">
+                                            {"Accessibility that".split("").map((char, index) => (
+                                                <motion.span key={index} variants={{ hidden: { opacity: 0, y: 50 }, visible: { opacity: 1, y: 0 } }}>
+                                                    {char}
+                                                </motion.span>
+                                            ))}
+                                        </span>
+                                        <span className="block text-brand-400">
+                                            {"speaks to everyone".split("").map((char, index) => (
+                                                <motion.span key={index} variants={{ hidden: { opacity: 0, y: 50 }, visible: { opacity: 1, y: 0 } }}>
+                                                    {char}
+                                                </motion.span>
+                                            ))}
+                                        </span>
                                     </span>
                                 </h1>
-                                <p className="mt-3 text-base text-gray-300 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
+                                <motion.p
+                                    className="mt-3 text-base text-gray-300 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: 2.5, duration: 1 }}
+                                >
                                     Experience the future of communication with real-time, multilingual captions designed for Deaf and hard-of-hearing users. Enterprise-grade accuracy, simplified for your daily life.
-                                </p>
+                                </motion.p>
                             </motion.div>
 
                             <motion.div
@@ -68,24 +96,86 @@ const Home = () => {
                             transition={{ delay: 0.6, duration: 0.8 }}
                             className="mt-12 relative sm:max-w-lg sm:mx-auto lg:mt-0 lg:max-w-none lg:mx-0 lg:col-span-6 lg:flex lg:items-center"
                         >
-                            <div className="relative mx-auto w-full rounded-lg shadow-lg lg:max-w-md overflow-hidden transform transition hover:scale-105 duration-500">
-                                <div className="relative block w-full bg-gray-800 rounded-lg overflow-hidden">
-                                    <img
-                                        className="w-full h-full object-cover opacity-80"
-                                        src="https://images.unsplash.com/photo-1573164713988-8665fc963095?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80"
-                                        alt="People working together"
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent"></div>
-                                    <div className="absolute bottom-4 left-4 right-4 bg-gray-900/90 backdrop-blur-sm p-4 rounded-xl border border-gray-700 shadow-2xl">
-                                        <div className="flex space-x-2 items-center mb-2">
-                                            <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
-                                            <span className="text-xs font-mono text-gray-400">LIVE CAPTION • EN-US</span>
-                                        </div>
-                                        <p className="text-lg font-medium text-white">"We are committed to creating an inclusive environment for all employees..."</p>
+                            <div className="relative mx-auto w-full rounded-2xl shadow-2xl overflow-hidden bg-gray-900 border border-gray-700 h-[32rem] flex flex-col transform hover:scale-[1.02] transition-transform duration-500">
+                                {/* Simulated Live Caption Interface */}
+                                <div className="p-4 border-b border-gray-700 flex justify-between items-center bg-gray-800">
+                                    <div className="flex space-x-2">
+                                        <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                                        <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                        <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                                    </div>
+                                    <span className="text-xs text-gray-400 font-mono">LIVE_FEED_01.ACT</span>
+                                </div>
+
+                                <div className="flex-1 p-6 relative flex items-center justify-center overflow-hidden">
+                                    {/* Audio Waveform Animation - Extended */}
+                                    <div className="absolute inset-0 flex items-center justify-center space-x-2 opacity-30">
+                                        {[...Array(30)].map((_, i) => (
+                                            <motion.div
+                                                key={i}
+                                                animate={{ height: ["20%", "80%", "20%"] }}
+                                                transition={{
+                                                    duration: 1.2 + Math.random(),
+                                                    repeat: Infinity,
+                                                    delay: i * 0.05,
+                                                    ease: "easeInOut"
+                                                }}
+                                                className="w-3 bg-brand-500 rounded-full"
+                                                style={{ height: '50%' }}
+                                            />
+                                        ))}
+                                    </div>
+
+                                    <div className="relative z-10 text-center w-full max-w-md">
+                                        <motion.div
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: [0, 1, 1, 0] }}
+                                            transition={{ duration: 4, times: [0, 0.1, 0.9, 1], repeat: Infinity, repeatDelay: 1 }}
+                                        >
+                                            <p className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-300 to-purple-400">
+                                                "Translating speech..."
+                                            </p>
+                                        </motion.div>
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.5, duration: 0.5 }}
+                                            className="mt-4 bg-gray-800/80 backdrop-blur-md p-4 rounded-xl border border-gray-600"
+                                        >
+                                            <p className="text-white text-lg font-medium">
+                                                Accessibility for everyone.
+                                            </p>
+                                        </motion.div>
                                     </div>
                                 </div>
                             </div>
                         </motion.div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Stats Section */}
+            <div className="bg-brand-900 py-12 border-y border-brand-800">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid grid-cols-2 gap-4 md:grid-cols-4 text-center">
+                        {[
+                            { label: 'Active Users', value: '10K+' },
+                            { label: 'Accuracy', value: '99.9%' },
+                            { label: 'Languages', value: '35+' },
+                            { label: 'Countries', value: '140' },
+                        ].map((stat, i) => (
+                            <motion.div
+                                key={i}
+                                initial={{ opacity: 0, scale: 0.5 }}
+                                whileInView={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: i * 0.1 }}
+                                viewport={{ once: true }}
+                                className="p-4"
+                            >
+                                <div className="text-4xl font-extrabold text-white mb-1">{stat.value}</div>
+                                <div className="text-sm font-medium text-brand-300 uppercase tracking-wider">{stat.label}</div>
+                            </motion.div>
+                        ))}
                     </div>
                 </div>
             </div>

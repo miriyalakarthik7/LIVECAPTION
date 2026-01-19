@@ -1,11 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Mic, MicOff, Settings, Type, MoreHorizontal } from 'lucide-react';
 import Button from '../components/Button';
 import AnimatedPage from '../components/AnimatedPage';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const LiveCaptions = () => {
+    const navigate = useNavigate();
     const [isListening, setIsListening] = useState(false);
+    const [isConnecting, setIsConnecting] = useState(false);
     const [transcriptions, setTranscriptions] = useState([]);
     const [currentText, setCurrentText] = useState('');
     const bottomRef = useRef(null);
@@ -20,16 +23,19 @@ const LiveCaptions = () => {
 
     const startRecording = async () => {
         try {
+            setIsConnecting(true);
             console.log("Starting recording...");
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             streamRef.current = stream;
 
             // Connect to WebSocket
-            const ws = new WebSocket('ws://localhost:8000/ws/transcribe');
+            const wsUrl = import.meta.env.VITE_WEBSOCKET_URL || 'ws://localhost:8000/ws/transcribe';
+            const ws = new WebSocket(wsUrl);
             socketRef.current = ws;
 
             ws.onopen = () => {
                 console.log("WebSocket connected");
+                setIsConnecting(false);
                 setIsListening(true);
 
                 // Initialize MediaRecorder
@@ -42,16 +48,12 @@ const LiveCaptions = () => {
                     }
                 };
 
-                // Send data every 1 second (1000ms) - Adjust chunk size/interval as needed
-                // Shorter interval = lower latency but potentially chopped words if backend isn't context-aware
+                // Send data every 1 second (1000ms)
                 mediaRecorder.start(1000);
             };
 
             ws.onmessage = (event) => {
                 const text = event.data;
-                // Append result to transcriptions. 
-                // Since this simple backend returns finished segments (mostly), we just add them.
-                // For a more advanced "streaming partials" UI, backend would need to send partial=true/false flags.
                 setTranscriptions(prev => [
                     ...prev,
                     {
@@ -64,17 +66,19 @@ const LiveCaptions = () => {
 
             ws.onerror = (error) => {
                 console.error("WebSocket error:", error);
+                setIsConnecting(false);
                 stopRecording();
+                alert("Connection error. Is the backend running?");
             };
 
             ws.onclose = () => {
                 console.log("WebSocket closed");
-                // Ensure state is updated if closed unexpectedly
                 if (isListening) stopRecording();
             };
 
         } catch (error) {
             console.error("Error accessing microphone:", error);
+            setIsConnecting(false);
             alert("Could not access microphone. Please allow permissions.");
         }
     };
@@ -82,6 +86,7 @@ const LiveCaptions = () => {
     const stopRecording = () => {
         console.log("Stopping recording...");
         setIsListening(false);
+        setIsConnecting(false);
 
         if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
             mediaRecorderRef.current.stop();
@@ -126,7 +131,12 @@ const LiveCaptions = () => {
                     <span className="font-medium text-gray-700">{isListening ? 'Live Recording' : 'Ready to Start'}</span>
                 </div>
                 <div className="flex space-x-2">
-                    <Button variant="ghost" size="sm">
+                    <Button
+                        onClick={() => navigate('/app/settings')}
+                        variant="secondary"
+                        size="sm"
+                        className="text-brand-600 bg-brand-50 hover:bg-brand-100 hover:text-brand-700 border-none"
+                    >
                         <Settings className="w-4 h-4 mr-2" /> Settings
                     </Button>
                 </div>
@@ -154,46 +164,51 @@ const LiveCaptions = () => {
                 />
 
                 {/* Caption Scroll View */}
-                <div className="flex-1 p-8 overflow-y-auto z-10 space-y-6">
+                <div className="flex-1 p-8 overflow-y-auto z-10 flex flex-col items-center justify-center text-center space-y-6">
                     {transcriptions.length === 0 && !currentText && (
-                        <div className="h-full flex flex-col items-center justify-center text-gray-400">
-                            <div className="p-6 bg-gray-800 rounded-full mb-4 bg-opacity-50">
-                                <Mic className="w-12 h-12 text-gray-500" />
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="flex flex-col items-center justify-center text-gray-400"
+                        >
+                            <div className={`p-6 bg-gray-800 rounded-full mb-4 bg-opacity-50 transition-all duration-300 ${isListening ? 'bg-red-500/10' : ''}`}>
+                                <Mic className={`w-12 h-12 ${isListening ? 'text-red-400' : 'text-gray-500'}`} />
                             </div>
-                            <p className="text-lg">
+                            <p className="text-2xl font-light tracking-wide text-gray-300">
                                 {isListening ? 'Start speaking...' : 'Tap the microphone to begin captioning'}
                             </p>
-                        </div>
+                        </motion.div>
                     )}
 
-                    <AnimatePresence>
+                    <AnimatePresence mode="popLayout">
                         {transcriptions.map((t) => (
                             <motion.div
                                 key={t.id}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="group"
+                                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                className="max-w-3xl w-full"
                             >
-                                <div className="flex items-baseline space-x-3">
-                                    <span className="text-xs font-mono text-gray-500 w-16 text-right flex-shrink-0">{t.timestamp}</span>
-                                    <p className="text-xl md:text-2xl text-gray-200 leading-relaxed font-medium">{t.text}</p>
-                                </div>
+                                <p className="text-3xl md:text-4xl text-white leading-relaxed font-semibold drop-shadow-sm">
+                                    {t.text}
+                                </p>
                             </motion.div>
                         ))}
                     </AnimatePresence>
 
-                    {/* Placeholder for "current/interim" text if we implement partial results later */}
+                    {/* LIVE INTERIM TEXT */}
                     {currentText && (
                         <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="flex items-baseline space-x-3"
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="max-w-4xl w-full mt-4"
                         >
-                            <span className="text-xs font-mono text-brand-400 w-16 text-right flex-shrink-0">Live</span>
-                            <p className="text-2xl md:text-3xl text-white leading-relaxed font-bold tracking-wide">{currentText}</p>
+                            <p className="text-4xl md:text-5xl text-transparent bg-clip-text bg-gradient-to-r from-brand-300 to-purple-400 font-bold tracking-tight animate-pulse">
+                                {currentText}
+                            </p>
                         </motion.div>
                     )}
-                    <div ref={bottomRef} className="h-4" />
+                    <div ref={bottomRef} />
                 </div>
 
                 {/* Floating Action Bar */}
@@ -219,9 +234,18 @@ const LiveCaptions = () => {
                             }
                         } : {}}
                         onClick={toggleListening}
-                        className={`p-5 rounded-full shadow-lg focus:outline-none ring-4 ring-offset-4 ring-offset-gray-900 ${isListening ? 'bg-red-500 ring-red-500/30' : 'bg-brand-500 ring-brand-500/30'}`}
+                        disabled={isConnecting}
+                        className={`p-5 rounded-full shadow-lg focus:outline-none ring-4 ring-offset-4 ring-offset-gray-900 transition-colors ${isListening ? 'bg-red-500 ring-red-500/30' :
+                            isConnecting ? 'bg-yellow-500 ring-yellow-500/30 cursor-wait' : 'bg-brand-500 ring-brand-500/30'
+                            }`}
                     >
-                        {isListening ? <MicOff className="w-8 h-8 text-white" /> : <Mic className="w-8 h-8 text-white" />}
+                        {isConnecting ? (
+                            <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin" />
+                        ) : isListening ? (
+                            <MicOff className="w-8 h-8 text-white" />
+                        ) : (
+                            <Mic className="w-8 h-8 text-white" />
+                        )}
                     </motion.button>
 
                     <button

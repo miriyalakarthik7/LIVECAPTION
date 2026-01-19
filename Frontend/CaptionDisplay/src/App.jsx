@@ -14,6 +14,10 @@ import Profile from './pages/Profile';
 
 import { Toaster } from 'react-hot-toast';
 
+import Careers from './pages/Careers';
+import Contact from './pages/Contact';
+import Security from './pages/Security';
+
 function App() {
   return (
     <BrowserRouter>
@@ -24,6 +28,9 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/features" element={<Features />} />
           <Route path="/about" element={<About />} />
+          <Route path="/careers" element={<Careers />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/security" element={<Security />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Route>

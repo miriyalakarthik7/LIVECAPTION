@@ -35,7 +35,7 @@ const Dashboard = () => {
                     value="1,240"
                     change="5%"
                     icon={Clock}
-                    color="blue"
+                    color="brand"
                 />
                 <StatsCard
                     title="Transcripts Saved"

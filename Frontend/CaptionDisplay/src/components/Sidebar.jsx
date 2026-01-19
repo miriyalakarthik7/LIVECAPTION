@@ -1,9 +1,10 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Mic, History, Settings, User, X } from 'lucide-react';
+import { Home, Mic, History, Settings, User, X, LayoutDashboard } from 'lucide-react';
 import clsx from 'clsx';
 
 const navigation = [
-    { name: 'Dashboard', href: '/app/dashboard', icon: Home },
+    { name: 'Home', href: '/', icon: Home },
+    { name: 'Dashboard', href: '/app/dashboard', icon: LayoutDashboard },
     { name: 'Live Captions', href: '/app/live', icon: Mic },
     { name: 'History', href: '/app/history', icon: History },
     { name: 'Settings', href: '/app/settings', icon: Settings },
