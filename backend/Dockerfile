@@ -6,8 +6,8 @@ RUN apt-get update && apt-get install -y ffmpeg libportaudio2 && rm -rf /var/lib
 WORKDIR /app
 
 # Copy requirements first for caching
-COPY requirement.txt .
-RUN pip install --no-cache-dir -r requirement.txt
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy source code
 COPY . .
